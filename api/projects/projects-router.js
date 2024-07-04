@@ -1,5 +1,9 @@
 const express = require("express");
 const Projects = require("./projects-model.js");
+const {
+  validateProjectId,
+  validateProjectBody,
+} = require("./projects-middleware.js");
 const router = express.Router();
 
 // GET all projects
@@ -13,7 +17,7 @@ router.get("/", (req, res, next) => {
 });
 
 // GET a specific project by id
-router.get("/:id", (req, res, next) => {
+router.get("/:id", validateProjectId, (req, res, next) => {
   Projects.get(req.params.id)
     .then((project) => {
       if (project) {
@@ -27,7 +31,7 @@ router.get("/:id", (req, res, next) => {
 });
 
 // POST a new project
-router.post("/", (req, res, next) => {
+router.post("/", validateProjectBody, (req, res, next) => {
   const { name, description } = req.body;
   // Check if required fields are provided
   if (!name || !description) {
@@ -45,7 +49,7 @@ router.post("/", (req, res, next) => {
 });
 
 // PUT (update) an existing project
-router.put("/:id", (req, res, next) => {
+router.put("/:id", validateProjectId, validateProjectBody, (req, res, next) => {
   const { name, description, completed } = req.body;
   // Check if all required fields are provided
   if (!name || !description || completed === undefined) {
@@ -68,7 +72,7 @@ router.put("/:id", (req, res, next) => {
 });
 
 // DELETE a project
-router.delete("/:id", (req, res, next) => {
+router.delete("/:id", validateProjectId, (req, res, next) => {
   Projects.remove(req.params.id)
     .then((count) => {
       if (count > 0) {

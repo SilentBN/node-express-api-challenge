@@ -1,6 +1,10 @@
 // Write your "actions" router here!
 const express = require("express");
 const Actions = require("./actions-model.js");
+const {
+  validateActionId,
+  validateActionBody,
+} = require("./actions-middleware.js");
 const router = express.Router();
 
 // GET all actions
@@ -13,7 +17,7 @@ router.get("/", (req, res, next) => {
 });
 
 // GET a specific action by id
-router.get("/:id", (req, res, next) => {
+router.get("/:id", validateActionId, (req, res, next) => {
   Actions.get(req.params.id)
     .then((action) => {
       if (action) {
@@ -26,7 +30,7 @@ router.get("/:id", (req, res, next) => {
 });
 
 // POST a new action
-router.post("/", (req, res, next) => {
+router.post("/", validateActionBody, (req, res, next) => {
   const { project_id, description, notes } = req.body;
   if (!project_id || !description || !notes) {
     res.status(400).json({
@@ -43,7 +47,7 @@ router.post("/", (req, res, next) => {
 });
 
 // PUT (update) an existing action
-router.put("/:id", (req, res, next) => {
+router.put("/:id", validateActionId, validateActionBody, (req, res, next) => {
   const { project_id, description, notes, completed } = req.body;
   if (!project_id || !description || !notes || completed === undefined) {
     res.status(400).json({
@@ -64,11 +68,11 @@ router.put("/:id", (req, res, next) => {
 });
 
 // DELETE an action
-router.delete("/:id", (req, res, next) => {
+router.delete("/:id", validateActionId, (req, res, next) => {
   Actions.remove(req.params.id)
     .then((count) => {
       if (count > 0) {
-        res.json({ message: "The action has been nuked" });
+        res.status(204).end();
       } else {
         res.status(404).json({ message: "Action not found" });
       }
