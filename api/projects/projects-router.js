@@ -73,11 +73,7 @@ router.delete("/:id", (req, res, next) => {
 router.get("/:id/actions", (req, res, next) => {
   Projects.getProjectActions(req.params.id)
     .then((actions) => {
-      if (actions.length > 0) {
-        res.json(actions);
-      } else {
-        res.status(404).json({ message: "No actions found for this project" });
-      }
+      res.json(actions); // This will return an empty array if no actions are found
     })
     .catch(next);
 });
